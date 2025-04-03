@@ -127,7 +127,7 @@ function App() {
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '1200px', margin: '0 auto', boxSizing: 'border-box' }}>
       <h1 style={{ textAlign: 'center' }}>당근 가계부 🥕</h1>
 
-      {/* 입력 폼 우선 배치 */}
+      {/* 입력 폼 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '500px', margin: '0 auto', width: '100%' }}>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -146,7 +146,94 @@ function App() {
         </form>
       </div>
 
-      {/* 차트나 테이블은 이후 배치, 반응형은 추가 조정 가능 */}
+      {/* 차트 및 테이블 */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center', marginBottom: '2rem' }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h3 style={{ textAlign: 'center' }}>소비 항목 분포</h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie data={getExpenseByCategory()} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                {getExpenseByCategory().map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center', marginBottom: '2rem' }}>
+        <div style={{ flex: 2, minWidth: '300px' }}>
+          <h3>소비 내역</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }} border="1">
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>항목</th>
+                <th>세부</th>
+                <th>이름</th>
+                <th>소비 내역</th>
+                <th>금액</th>
+                <th>잔액</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recordsWithBalance.length === 0 ? (
+                <tr><td colSpan="7">데이터가 없습니다</td></tr>
+              ) : (
+                recordsWithBalance.map((rec) => (
+                  <tr key={rec.id}>
+                    <td>{rec.date}</td>
+                    <td>{rec.category}</td>
+                    <td>{rec.subCategory}</td>
+                    <td>{rec.who}</td>
+                    <td>{rec.item}</td>
+                    <td>{Math.abs(rec.amount).toLocaleString()}원</td>
+                    <td>{rec.balance.toLocaleString()}원</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h4>식비 세부 항목</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie data={getFoodSubCategory()} dataKey="value" nameKey="name" outerRadius={60} label>
+                {getFoodSubCategory().map((entry, index) => (
+                  <Cell key={`cell-sub-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h4>소비 주체 별 분포</h4>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={getSpendingByWho()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="value" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '2rem' }}>
+        <h3>월별 소비 추이</h3>
+        <div style={{ border: '1px dashed gray', height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          (추후 구현 예정 차트 자리)
+        </div>
+      </div>
     </div>
   );
 }
